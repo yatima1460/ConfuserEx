@@ -268,7 +268,7 @@ namespace Confuser.Renamer.Analyzers {
 			}
 		}
 
-		private static void SetupOverwriteReferences(IConfuserContext context, INameService service, VTableSlot slot, TypeDef thisType) {
+		private static void SetupOverwriteReferences(IConfuserContext context, NameService service, VTableSlot slot, TypeDef thisType) {
 			var module = thisType.Module;
 			var methodDef = slot.MethodDef;
 			var baseSlot = slot.Overrides;
@@ -308,7 +308,22 @@ namespace Confuser.Renamer.Analyzers {
 				methodDef.Overrides.Add(new MethodOverride(methodDef, target));
 			}
 			else if (target is IMemberDef targetDef) {
-				CreateOverrideReference(context, service, methodDef, targetDef);
+				// Reaching this place means that a slot of the base type is overwritten by a specific interface.
+				// In case the this type is implementing the interface responsible for this, we need to declare
+				// this as an override reference. If the base type is implementing the interface (as well), this
+				// declaration is redundant.
+				var overrideRefRequired = true;
+				if (targetDef.DeclaringType.IsInterface) {
+					var baseTypeDef = thisType.BaseType?.ResolveTypeDef();
+					if (!(baseTypeDef is null)) {
+						var baseTypeVTable = service.GetVTables()[baseTypeDef];
+						if (baseTypeVTable.InterfaceSlots.TryGetValue(targetDef.DeclaringType.ToTypeSig(), out var ifcSlots)) {
+							overrideRefRequired = !ifcSlots.Contains(slot);
+						}
+					}
+				}
+				if (overrideRefRequired)
+					CreateOverrideReference(context, service, methodDef, targetDef);
 			}
 		}
 
