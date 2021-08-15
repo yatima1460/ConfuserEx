@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>InterfaceRenamingLoop.Test</RootNamespace>
     <IsPackable>false</IsPackable>
+    <RootNamespace>MessageDeobfuscation.Test</RootNamespace>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <ProjectReference Include="..\342_InterfaceRenamingLoop\342_InterfaceRenamingLoop.csproj" />
     <ProjectReference Include="..\Confuser.UnitTest\Confuser.UnitTest.csproj" />
+    <ProjectReference Include="..\MessageDeobfuscation\MessageDeobfuscation.csproj" />
+    <ProjectReference Include="..\MethodOverloading\MethodOverloading.csproj" />
   </ItemGroup>
-
 </Project>

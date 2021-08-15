@@ -107,13 +107,17 @@ namespace Confuser.Core {
 		/// <param name="self">The list to remove from.</param>
 		/// <param name="match">The predicate that defines the conditions of the elements to remove.</param>
 		/// <returns><paramref name="self" /> for method chaining.</returns>
-		public static IList<T> RemoveWhere<T>(this IList<T> self, Predicate<T> match) {
+		public static void RemoveWhere<T>(this IList<T> self, Predicate<T> match) {
+			if (self is List<T> list) {
+				list.RemoveAll(match);
+				return;
+			}
+
+			// Switch to slow algorithm
 			for (int i = self.Count - 1; i >= 0; i--) {
 				if (match(self[i]))
 					self.RemoveAt(i);
 			}
-
-			return self;
 		}
 	}
 }

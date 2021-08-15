@@ -42,14 +42,13 @@ namespace Confuser.Renamer {
 
 				if (def is ModuleDef module) {
 					foreach (var res in module.Resources)
-						service.SetOriginalName(context, res, res.Name);
+						service.AddReservedIdentifier(res.Name);
 				}
 				else
-					service.SetOriginalName(context, def, def.Name);
+					service.SetOriginalName(context, def);
 
-				if (def is TypeDef) {
-					service.GetVTables().GetVTable((TypeDef)def);
-					service.SetOriginalNamespace(context, def, ((TypeDef)def).Namespace);
+				if (def is TypeDef typeDef) {
+					service.GetVTables().GetVTable(typeDef);
 				}
 
 				token.ThrowIfCancellationRequested();
@@ -115,7 +114,7 @@ namespace Confuser.Renamer {
 			}
 
 			if (json) {
-				var jsonAnalyzer = new JsonAnalyzer();
+				var jsonAnalyzer = new JsonAnalyzer(Parent);
 				logger.LogDebug("Newtonsoft.Json found, enabling compatibility.");
 				service.RegisterRenamer(jsonAnalyzer);
 			}

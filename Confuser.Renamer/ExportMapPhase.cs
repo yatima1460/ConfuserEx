@@ -29,7 +29,7 @@ namespace Confuser.Renamer {
 			foreach (var def in parameters.Targets) {
 				var module = (def as ModuleDef) ?? ((IOwnerModule)def).Module;
 
-				var map = srv.GetNameMap(module);
+				var map = srv.GetNameMap();
 				if (map.Count == 0)
 					return;
 

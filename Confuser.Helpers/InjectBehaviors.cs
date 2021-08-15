@@ -40,8 +40,7 @@ namespace Confuser.Helpers {
 				if (source == null) throw new ArgumentNullException(nameof(source));
 				if (injected == null) throw new ArgumentNullException(nameof(injected));
 
-				_nameService.SetOriginalNamespace(_context, injected, injected.Namespace);
-				_nameService.SetOriginalName(_context, injected, injected.Name);
+				_nameService.SetOriginalName(_context, injected);
 
 				injected.Name = GetName(injected);
 				injected.Namespace = null;

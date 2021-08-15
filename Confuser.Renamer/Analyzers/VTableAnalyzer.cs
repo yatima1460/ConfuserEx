@@ -36,11 +36,11 @@ namespace Confuser.Renamer.Analyzers {
 					// derived type. If the base type/interface is not in our control, we should
 					// not rename the methods.
 					bool baseUnderCtrl = context.Modules.Contains(slot.MethodDef.DeclaringType.Module as ModuleDefMD);
-					bool ifaceUnderCtrl = context.Modules.Contains(slot.Overrides.MethodDef.DeclaringType.Module as ModuleDefMD);
-					if ((!baseUnderCtrl && ifaceUnderCtrl) || !service.CanRename(context, slot.MethodDef)) {
+					bool interfaceUnderCtrl = context.Modules.Contains(slot.Overrides.MethodDef.DeclaringType.Module as ModuleDefMD);
+					if ((!baseUnderCtrl && interfaceUnderCtrl) || !service.CanRename(context, slot.MethodDef)) {
 						service.SetCanRename(context, slot.Overrides.MethodDef, false);
 					}
-					else if (baseUnderCtrl && !ifaceUnderCtrl || !service.CanRename(context, slot.Overrides.MethodDef)) {
+					else if (baseUnderCtrl && !interfaceUnderCtrl || !service.CanRename(context, slot.Overrides.MethodDef)) {
 						service.SetCanRename(context, slot.MethodDef, false);
 					}
 
@@ -51,6 +51,17 @@ namespace Confuser.Renamer.Analyzers {
 						SetupOverwriteReferences(context, service, slot, type);
 						//CreateOverrideReference(service, slot.MethodDef, slot.Overrides.MethodDef);
 					}
+
+					// For the case when method in base type implements an interface method for a derived type
+					// do not consider method parameters to make method name the same in base type, derived type and interface
+					var methodDef = slot.MethodDef;
+					var typeDef = type.BaseType?.ResolveTypeDef();
+					var baseMethod = typeDef?.FindMethod(methodDef.Name, methodDef.Signature as MethodSig);
+					if (baseMethod != null) {
+						string unifiedName = service.GetOriginalFullName(context, slot.Overrides.MethodDef);
+						service.SetOriginalName(context, slot.MethodDef, unifiedName);
+						service.SetOriginalName(context, baseMethod, unifiedName);
+					}
 				}
 			}
 		}
@@ -59,7 +70,7 @@ namespace Confuser.Renamer.Analyzers {
 			if (!method.IsVirtual)
 				return;
 
-			var vTbl = service.GetVTables()[method.DeclaringType];
+			var vTbl = service.GetVTables().GetVTable(method.DeclaringType);
 			var slots = vTbl.FindSlots(method).ToArray();
 
 			IMemberDef discoveredBaseMemberDef = null;
@@ -218,7 +229,7 @@ namespace Confuser.Renamer.Analyzers {
 					unprocessed.Enqueue(slot.Overrides.MethodDef);
 					slotsExists = true;
 				}
-				
+
 				if (!slotsExists && method != currentMethod)
 					yield return currentMethod;
 			}
@@ -337,7 +348,7 @@ namespace Confuser.Renamer.Analyzers {
 
 			var targetMethodSig = targetMethod.MethodSig;
 			var overrideMethodSig = methodOverride.MethodDeclaration.MethodSig;
-			
+
 			targetMethodSig = ResolveGenericSignature(targetMethod, targetMethodSig);
 			overrideMethodSig = ResolveGenericSignature(methodOverride.MethodDeclaration, overrideMethodSig);
 
