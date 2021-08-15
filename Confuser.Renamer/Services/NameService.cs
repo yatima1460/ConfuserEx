@@ -44,7 +44,8 @@ namespace Confuser.Renamer.Services {
 				new ResourceAnalyzer(),
 				new LdtokenEnumAnalyzer(),
 				new ManifestResourceAnalyzer(),
-				new ReflectionAnalyzer()
+				new ReflectionAnalyzer(),
+				new CallSiteAnalyzer()
 			);
 		}
 
