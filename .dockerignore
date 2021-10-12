@@ -1,0 +1,5 @@
+.dockerignore
+.github
+docs
+Dockerfile
+chocolatey-packages
