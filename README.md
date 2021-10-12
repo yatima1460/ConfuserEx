@@ -34,6 +34,20 @@ Confuser.CLI.exe <path to project file>
 The project file is a ConfuserEx Project (`*.crproj`).
 The format of project file can be found in [docs\ProjectFormat.md][project_format]
 
+## Dockerfile
+
+Compile
+
+```cmd
+docker build --memory=4GB --tag confuserex2 .
+```
+
+Use
+
+```cmd
+docker run --rm --cpus=%NUMBER_OF_PROCESSORS% --memory=4GB --volume %CD%:C:/source confuserex2 C:/source/project.crproj
+```
+
 # Bug Report
 
 See the [Issues Report][issues] section of website.
